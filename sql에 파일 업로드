@@ -1,0 +1,32 @@
+import pandas as pd
+from sqlalchemy import create_engine
+import pymysql
+import os
+
+# 1️⃣ MySQL 연결 설정
+user = "root"  # MySQL 사용자 이름
+password = "****"  # MySQL 비밀번호
+host = "localhost"  # MySQL 서버 주소
+database = "aarrr"  # 사용할 데이터베이스 이름
+
+# SQLAlchemy 엔진 생성 (MySQL 연결)
+engine = create_engine(f"mysql+pymysql://{user}:{password}@{host}/{database}")
+
+# 2️⃣ 업로드할 CSV 파일 리스트
+#폴더 경로 지정하기
+path='../AARRR분석'
+#해당 폴더 안에 있는 파일 리스트 불러오기
+for file in os.listdir(path):
+    if 'csv' in file:
+        table_name = file.replace(".csv", "")  # 파일명에서 확장자 제거하여 테이블명으로 사용
+        print(file, table_name)
+        print(f"📌 {file} → {table_name} 테이블로 업로드 중...")
+            # CSV 파일 불러오기
+        df = pd.read_csv(file)
+    
+        # MySQL에 데이터 넣기 (자동으로 테이블 생성!)
+        df.to_sql(name=table_name, con=engine, if_exists="replace", index=False)
+    
+        print(f"✅ {table_name} 테이블 업로드 완료! \n")
+    
+print("🎉 모든 데이터 업로드 완료!")
